@@ -37,7 +37,7 @@ public class TicTacToeGame {
 
            System.out.println("Enter the character/symbol of bot " + " : ");
            String character = scanner.next();
-           players.add(new Bot(name,  character));
+           players.add(new Bot(name,  character.charAt(0), BotDifficultyLevel.EASY));
 
            numOfPlayers--;
        }
@@ -48,7 +48,7 @@ public class TicTacToeGame {
 
            System.out.println("Enter the character/symbol of player " + (i+1) + " : ");
            String character = scanner.next();
-           players.add(new Player(name,  character, PlayerType.HUMAN));
+           players.add(new Player(name,  character.charAt(0), PlayerType.HUMAN));
        }
 
        Game game = gameController.createGame(boardSize, players);

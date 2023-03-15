@@ -2,6 +2,7 @@ package com.scaler.tictactoe.models;
 
 import com.scaler.tictactoe.exceptions.InvalidGameConstructorExcpetion;
 import com.scaler.tictactoe.strategies.gamewinningstrategy.GameWinningStrategy;
+import com.scaler.tictactoe.strategies.gamewinningstrategy.OrderOneGameWiningStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +89,28 @@ public class Game {
         this.nextPlayerIndex = nextPlayerIndex;
     }
 
+    public void executeNextMove() {
+        Player toMovePlayer = players.get(nextPlayerIndex);
+        System.out.println("Player " + toMovePlayer.getName() + " to move");
+
+        Move move = toMovePlayer.makeMove(this.board);
+
+        int row = move.getCell().getRow();
+        int col = move.getCell().getCol();
+
+        board.getBoard().get(row).get(col).setCellState(CellState.FILLED);
+        board.getBoard().get(row).get(col).setPlayer(players.get(nextPlayerIndex));
+
+        this.moves.add(move);
+
+        if(gameWinningStrategy.checkWinner(board, players.get(nextPlayerIndex), move.getCell())) {
+            this.gameStatus = GameStatus.ENDED;
+            this.winner = players.get(nextPlayerIndex);
+        }
+
+        nextPlayerIndex = (nextPlayerIndex + 1) % players.size();
+    }
+
     public static class Builder {
         private int boardSize;
         private List<Player> players;
@@ -125,7 +148,7 @@ public class Game {
             game.setMoves(new ArrayList<>());
             game.setNextPlayerIndex(0);
             game.setGameStatus(GameStatus.IN_PROGRESS);
-            //game.gameWinningStrategy();
+            game.setGameWinningStrategy(new OrderOneGameWiningStrategy(boardSize));
             return game;
         }
     }
