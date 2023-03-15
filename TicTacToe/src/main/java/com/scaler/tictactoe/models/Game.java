@@ -1,7 +1,9 @@
 package com.scaler.tictactoe.models;
 
+import com.scaler.tictactoe.exceptions.InvalidGameConstructorExcpetion;
 import com.scaler.tictactoe.strategies.gamewinningstrategy.GameWinningStrategy;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
@@ -39,39 +41,7 @@ public class Game {
     public void undo() {}
 
     public void makeNextMove() {
-        Player toMovePlayer = players.get(nextPlayerIndex);
 
-        System.out.println("It is " + players.get(nextPlayerIndex).getName() + "'s turn.");
-
-        Move move = toMovePlayer.decideMove(this.board);
-
-        // validate move
-
-        int row = move.getCell().getRow();
-        int col = move.getCell().getCol();
-
-        System.out.println("Move happened at: " +
-                row + ", " + col + ".");
-
-        board.getBoard().get(row).get(col).setCellState(CellState.FILLED);
-        board.getBoard().get(row).get(col).setPlayer(players.get(nextPlayerIndex));
-
-        Move finalMove = new Move(
-                players.get(nextPlayerIndex),
-                board.getBoard().get(row).get(col)
-        );
-
-        this.moves.add(finalMove);
-
-        if (gameWinningStrategy.checkWinner(
-                board, players.get(nextPlayerIndex), finalMove.getCell()
-        )) {
-            gameStatus = GameStatus.ENDED;
-            winner = players.get(nextPlayerIndex);
-        }
-
-        nextPlayerIndex += 1;
-        nextPlayerIndex %= players.size();
     }
 
     public void displayBoard() {
@@ -119,6 +89,44 @@ public class Game {
     }
 
     public static class Builder {
+        private int boardSize;
+        private List<Player> players;
 
+        public Builder setBoard(int boardSize) {
+            this.boardSize = boardSize;
+            return this;
+        }
+
+        public Builder setPlayers(List<Player> players) {
+            this.players = players;
+            return this;
+        }
+
+        public boolean valid() throws Exception {
+            if(this.boardSize < 3) {
+                throw new InvalidGameConstructorExcpetion("Dimensions of board should be greater than 3");
+            } else if(this.players.size() < 2) {
+                throw new InvalidGameConstructorExcpetion("Players should be more than 2");
+            }
+            return true;
+        }
+
+        public Game build() throws Exception {
+
+            try{
+                valid();
+            } catch (Exception e) {
+                throw new InvalidGameConstructorExcpetion(e.getMessage());
+            }
+
+            Game game = new Game();
+            game.setBoard(new Board(this.boardSize));
+            game.setPlayers(this.players);
+            game.setMoves(new ArrayList<>());
+            game.setNextPlayerIndex(0);
+            game.setGameStatus(GameStatus.IN_PROGRESS);
+            //game.gameWinningStrategy();
+            return game;
+        }
     }
 }
